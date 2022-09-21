@@ -71,7 +71,7 @@ def getConfigs( tCfgFile ):
 # 获取列表
 def getList(tParams):
     # 参数验证
-    if ('CNT' not in tParams) or ('Url' not in tParams) or ('jQueryKey' not in tParams) or ('Parameter' not in tParams) or ('Output' not in tParams) or ('FileName' not in tParams):
+    if ('CNT' not in tParams) or ('Url' not in tParams) or ('jQueryKey' not in tParams) or ('Parameter' not in tParams) or ('Output' not in tParams) or ('FileName' not in tParams) or ('RecSTime' not in tParams) or ('RecETime' not in tParams):
         print("getList：failed!输入参数不完整，请检查参数录入配置文件!")
         os._exit(0)
 
@@ -86,6 +86,11 @@ def getList(tParams):
     if not os.path.exists(tParams['Output']):
         os.makedirs(tParams['Output'])
 
+    # 当前时间小时数
+    tHour = time.localtime().tm_hour
+    if tHour < tParams['RecSTime'] or tHour > tParams['RecETime']:
+        return
+        
     # 当前时间戳
     tTime = int(time.time())
     tjQueryKey = '%s%d' % (tParams['jQueryKey'],tTime)
