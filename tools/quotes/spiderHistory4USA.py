@@ -56,6 +56,7 @@ def saveTocsv(data, files):
 
 # 读取JSON配置文件
 def getConfigs( tCfgFile ):
+	print ('getConfigs: tCfgFile=', tCfgFile)
 	# 判断文件是否存在
 	if not os.path.exists(tCfgFile):
 		return
@@ -69,27 +70,12 @@ def getConfigs( tCfgFile ):
 
 # 获取列表
 def getList(tParams):
+    tStockList = []
     # 参数验证
-    if ('CNT' not in tParams) or ('Url' not in tParams) or ('jQueryKey' not in tParams) or ('Parameter' not in tParams) or ('Output' not in tParams) or ('FileName' not in tParams) or ('RecSTime' not in tParams) or ('RecETime' not in tParams):
+    if ('CNT' not in tParams) or ('Url' not in tParams) or ('jQueryKey' not in tParams) or ('Parameter' not in tParams):
         print("getList：failed!输入参数不完整，请检查参数录入配置文件!")
         os._exit(0)
 
-    # 输出文件名
-    tSaveFile = tParams['Output']+tParams['FileName']+time.strftime('%Y%m%d',time.localtime())+'.csv'
-
-    # 判断文件是否存在
-    if os.path.exists(tSaveFile):
-        os.remove(tSaveFile)
-
-    # 创建目录
-    if not os.path.exists(tParams['Output']):
-        os.makedirs(tParams['Output'])
-
-    # 当前时间小时数
-    tHour = time.localtime().tm_hour
-    if tHour < tParams['RecSTime'] or tHour > tParams['RecETime']:
-        return
-        
     # 当前时间戳
     tTime = int(time.time())
     tjQueryKey = '%s%d' % (tParams['jQueryKey'],tTime)
@@ -106,13 +92,21 @@ def getList(tParams):
         result_json = json.loads(result2)
         # 判断是否请求到正确数据
         if ('rc' in result_json) and ('data' in result_json) and (0 == result_json['rc']):
-            # 保存数据到CSV
-            saveTocsv(result_json['data'],tSaveFile)
+            for i in result_json['data']['diff']:
+                tStockList.append(i['f12'])
             tNowPage += 1
         else:
             break
         #end if
     #end while
+
+    # 判断股票ID列表
+    return tStockList
+#end def
+
+# 拉取对应股票的历史数据
+def aaaa():
+    print("ads")
 #end def
 
 # 主函数
@@ -121,9 +115,8 @@ def main(argv):
 	tCfg = getConfigs( './conf/Export.json' )
 	
 	# 拉取各地区交易所股票列表
-	if ('SEList' in tCfg):
-		for tInfo in tCfg['SEList'].values():
-			getList(tInfo)
+	if ('SEList' in tCfg) and ('China' in tCfg['SEList']):
+		tStockList = getList(tCfg['SEList']['China'])
 	#end for
 #end def
 
