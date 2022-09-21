@@ -105,15 +105,19 @@ def getList(tParams):
 #end def
 
 # 拉取对应股票的历史数据
-def aaaa():
+def pullStockHisquotes( ):
     print("ads")
+    tUrl = "http://quotes.money.163.com/service/chddata.html?code=0600089&start=19900101&end=20220921&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
+    res = requests.get(tUrl)
+    print(res.text)
 #end def
 
 # 主函数
 def main(argv):
 	# 读取指定配置
 	tCfg = getConfigs( './conf/Export.json' )
-	
+	pullStockHisquotes()
+	return
 	# 拉取各地区交易所股票列表
 	if ('SEList' in tCfg) and ('China' in tCfg['SEList']):
 		tStockList = getList(tCfg['SEList']['China'])
