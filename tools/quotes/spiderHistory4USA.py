@@ -10,49 +10,12 @@ if(platform.system() == "Linux"):
 
 from telnetlib import DO
 import requests
+import yfinance as yf
 import sys,getopt
 import os,os.path
 import json
 import time
 import shutil
-
-# 保存信息到CSV文件
-def saveTocsv(data, files):
-    # 文件不存在 创建文件头和抬头
-    if not os.path.exists(files):
-        with open(files, "a+") as f:
-            f.write("股票代码,股票名称,最新价,涨跌幅,涨跌额,成交量（手）,成交额,振幅,换手率,市盈率,量比,最高,最低,今开,昨收,市净率\n")
-            f.close()
-    
-    # 写入文件内容
-    with open(files, "a+") as f:
-        for i in data['diff']:
-            Code = i['f12']
-            Name = i['f14']
-            Close = i['f2']
-            ChangePercent = i["f3"]
-            Change = i['f4']
-            Volume = i['f5']
-            Amount = i['f6']
-            Amplitude = i['f7']
-            TurnoverRate = i['f8']
-            PERation = i['f9']
-            VolumeRate = i['f10']
-            Hign = i['f15']
-            Low = i['f16']
-            Open = i['f17']
-            PreviousClose = i['f18']
-            PB = i['f22']
-            #row = '{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}'.format(
-            #    Code,Name,Close,ChangePercent,Change,Volume,Amount,Amplitude,
-            #    TurnoverRate,PERation,VolumeRate,Hign,Low,Open,PreviousClose,PB)
-            row = '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % (
-                Code,Name,Close,ChangePercent,Change,Volume,Amount,Amplitude,
-                TurnoverRate,PERation,VolumeRate,Hign,Low,Open,PreviousClose,PB)
-            f.write(row)
-            f.write('\n')
-	#endif
-#end def
 
 # 读取JSON配置文件
 def getConfigs( tCfgFile ):
@@ -105,19 +68,46 @@ def getList(tParams):
 #end def
 
 # 拉取对应股票的历史数据
-def aaaa():
-    print("ads")
+def pullStockHisquotes( tCode ,tParams ):
+    # 参数验证
+    if ('CNT' not in tParams) or ('Url' not in tParams) or ('Parameter' not in tParams) or ('Output' not in tParams):
+        print("getList：failed!输入参数不完整，请检查参数录入配置文件!")
+        os._exit(0)
+
+    # 输出文件名
+    tSaveFile = tParams['Output']+tCode+'.csv'
+
+    # 判断文件是否存在
+    if os.path.exists(tSaveFile):
+        os.remove(tSaveFile)
+
+    # 创建目录
+    if not os.path.exists(tParams['Output']):
+        os.makedirs(tParams['Output'])
+
+    data = yf.download(tCode, start="1990-01-01", end=time.strftime('%Y%m%d',time.localtime()))
+    data.to_csv(tSaveFile)
+
 #end def
 
 # 主函数
 def main(argv):
 	# 读取指定配置
 	tCfg = getConfigs( './conf/Export.json' )
-	
+
 	# 拉取各地区交易所股票列表
-	if ('SEList' in tCfg) and ('China' in tCfg['SEList']):
-		tStockList = getList(tCfg['SEList']['China'])
-	#end for
+	if ('SEList' in tCfg) and ('USA' in tCfg['SEList']) and ('HIS' in tCfg) and ('USA' in tCfg['HIS']):
+		tStockList = getList(tCfg['SEList']['USA'])
+		tLen = len(tStockList)
+		tNum = 0
+		for tCode in tStockList:
+			pullStockHisquotes(tCode,tCfg['HIS']['USA'])
+			tNum += 1
+			print("# pull code(%s) history finish! %d/%d" % (tCode,tNum,tLen))
+        #end for
+	#end if
+
+	print("# pull all history finish!")
 #end def
 
 # 默认运行

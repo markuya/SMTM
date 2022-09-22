@@ -105,23 +105,55 @@ def getList(tParams):
 #end def
 
 # 拉取对应股票的历史数据
-def pullStockHisquotes( ):
-    print("ads")
-    tUrl = "http://quotes.money.163.com/service/chddata.html?code=0600089&start=19900101&end=20220921&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
+def pullStockHisquotes( tCode ,tParams ):
+    # 参数验证
+    if ('CNT' not in tParams) or ('Url' not in tParams) or ('Parameter' not in tParams) or ('Output' not in tParams):
+        print("getList：failed!输入参数不完整，请检查参数录入配置文件!")
+        os._exit(0)
+
+    # 输出文件名
+    tSaveFile = tParams['Output']+tCode+'.csv'
+
+    # 判断文件是否存在
+    if os.path.exists(tSaveFile):
+        os.remove(tSaveFile)
+
+    # 创建目录
+    if not os.path.exists(tParams['Output']):
+        os.makedirs(tParams['Output'])
+
+    if tCode[0] == '6':
+        tUrl = tParams['Url']+"0"+tCode+"&start=19900101&end="+time.strftime('%Y%m%d',time.localtime())+tParams['Parameter']
+        #tUrl = "http://quotes.money.163.com/service/chddata.html?code=0"+tCode+"&start=19900101&end=20220921&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
+    else:
+        tUrl = tParams['Url']+"1"+tCode+"&start=19900101&end="+time.strftime('%Y%m%d',time.localtime())+tParams['Parameter']
+        #tUrl = "http://quotes.money.163.com/service/chddata.html?code=1"+tCode+"&start=19900101&end=20220921&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
+
     res = requests.get(tUrl)
-    print(res.text)
+    # print(res.text)
+    f = open(tSaveFile, "wb")
+    f.write(res.content)
+    f.close()
 #end def
 
 # 主函数
 def main(argv):
 	# 读取指定配置
 	tCfg = getConfigs( './conf/Export.json' )
-	pullStockHisquotes()
-	return
+
 	# 拉取各地区交易所股票列表
-	if ('SEList' in tCfg) and ('China' in tCfg['SEList']):
+	if ('SEList' in tCfg) and ('China' in tCfg['SEList']) and ('HIS' in tCfg) and ('China' in tCfg['HIS']):
 		tStockList = getList(tCfg['SEList']['China'])
-	#end for
+		tLen = len(tStockList)
+		tNum = 0
+		for tCode in tStockList:
+			pullStockHisquotes(tCode,tCfg['HIS']['China'])
+			tNum += 1
+			print("# pull code(%s) history finish! %d/%d" % (tCode,tNum,tLen))
+        #end for
+	#end if
+
+	print("# pull all history finish!")
 #end def
 
 # 默认运行
