@@ -74,6 +74,11 @@ def getList(tParams):
         print("getList：failed!输入参数不完整，请检查参数录入配置文件!")
         os._exit(0)
 
+    # 当前时间小时数
+    tHour = time.localtime().tm_hour
+    if tHour < tParams['RecSTime'] or tHour > tParams['RecETime']:
+        return
+
     # 输出文件名
     tSaveFile = tParams['Output']+tParams['FileName']+time.strftime('%Y%m%d',time.localtime())+'.csv'
 
@@ -84,11 +89,6 @@ def getList(tParams):
     # 创建目录
     if not os.path.exists(tParams['Output']):
         os.makedirs(tParams['Output'])
-
-    # 当前时间小时数
-    tHour = time.localtime().tm_hour
-    if tHour < tParams['RecSTime'] or tHour > tParams['RecETime']:
-        return
         
     # 当前时间戳
     tTime = int(time.time())
