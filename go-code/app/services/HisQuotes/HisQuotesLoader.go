@@ -4,10 +4,11 @@ import (
 	"SMTM/lib/filesFinder"
 	"SMTM/lib/primCsv"
 	"io"
+	"time"
 )
 
 // 加载指定目录下的所有历史行情数据
-func loadHisData(tHisData string) map[string]*Stock {
+func loadHisData(tHisData string, tStartTime *time.Time, tEndTime *time.Time) map[string]*Stock {
 	tStockMap := make(map[string]*Stock)
 
 	// 遍历指定目录
@@ -20,30 +21,38 @@ func loadHisData(tHisData string) map[string]*Stock {
 			}
 			defer tReader.Close()
 
+			// 实例创建
+			tStock := &Stock{
+				His: make(map[string]*Quote),
+			}
+
 			// 逐行读取数据
 			for {
 				// read
-				tData, err := tReader.ReadArr()
+				tData, err := tReader.ReadDict()
 
+				// 日行情历史
+				tHisQuote := &Quote{}
 				// 文件结束
 				if io.EOF == err {
 					break
 				}
-
-				// 实例创建
-				tStock := &Stock{
-					Code: tData[0],
-				}
-				tStockMap[tFileName] = tStock
 			}
+
+			// 按名 记录
+			tStockMap[tFileName] = tStock
 		})
 
+	//
+	//
 	return tStockMap
 }
 
 // 获取China交易所所有票的历史行情
 // tHisData string - 历史数据存储路径
 // tDayData string - 天历史数据存储路径
-func loadHisQuotes(tHisData string, tDayData string) map[string]*Stock {
-	return nil
+// tStartTime time.Time - 开始时间
+// tEndTime time.Time - 结束时间
+func loadHisQuotes(tHisData string, tDayData string, tStartTime *time.Time, tEndTime *time.Time) (map[string]*Stock, error) {
+	return nil, nil
 }
