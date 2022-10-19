@@ -138,7 +138,7 @@ def pullStockHisquotes( tCode ,tParams ):
     f_tmp.write(res.content)
     f_tmp.close()
 
-    f2 = open(tSaveFile, "wb")
+    f2 = open(tSaveFile, "w")
 
     # 新文件标题
     tHeader = ['Date','Code','Name','Close','High','Low','Open','PreClose','Change','PctChange','TurnoverRatio','Volume','Amount','MC','FAMC']
