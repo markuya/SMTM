@@ -15,13 +15,14 @@ import os,os.path
 import json
 import time
 import shutil
+import csv
 
 # 保存信息到CSV文件
 def saveTocsv(data, files):
     # 文件不存在 创建文件头和抬头
     if not os.path.exists(files):
         with open(files, "a+") as f:
-            f.write("股票代码,股票名称,最新价,涨跌幅,涨跌额,成交量（手）,成交额,振幅,换手率,市盈率,量比,最高,最低,今开,昨收,市净率\n")
+            f.write("Code,Name,NowPrice,PctChange,Change,Volume,Amount,Amplitude,TurnoverRatio,PE,QRR,High,Low,Open,PreClose,PB\n")
             f.close()
     
     # 写入文件内容
@@ -130,10 +131,30 @@ def pullStockHisquotes( tCode ,tParams ):
         #tUrl = "http://quotes.money.163.com/service/chddata.html?code=1"+tCode+"&start=19900101&end=20220921&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
 
     res = requests.get(tUrl)
-    # print(res.text)
-    f = open(tSaveFile, "wb")
-    f.write(res.content)
-    f.close()
+    
+    # 数据存入临时文件
+    tTmpFile = './tmp-'+tCode+'.csv'
+    f_tmp = open(tTmpFile, "wb")
+    f_tmp.write(res.content)
+    f_tmp.close()
+
+    f2 = open(tSaveFile, "wb")
+
+    # 新文件标题
+    tHeader = ['Date','Code','Name','Close','High','Low','Open','PreClose','Change','PctChange','TurnoverRatio','Volume','Amount','MC','FAMC']
+
+    with open(tTmpFile) as f_tmp:
+        f_reader = csv.reader(f_tmp)
+        f_writer = csv.writer(f2)
+        # 跳过原标题，写入新标题
+        next(f_reader)
+        f_writer.writerow(tHeader)
+        for each_row in f_reader:
+            f_writer.writerow(each_row)
+    
+    # 删除临时文件
+    os.remove(tTmpFile)
+    f2.close()
 #end def
 
 # 主函数

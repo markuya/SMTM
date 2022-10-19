@@ -21,7 +21,7 @@ def saveTocsv(data, files):
     # 文件不存在 创建文件头和抬头
     if not os.path.exists(files):
         with open(files, "a+") as f:
-            f.write("股票代码,股票名称,最新价,涨跌幅,涨跌额,成交量（手）,成交额,振幅,换手率,市盈率,量比,最高,最低,今开,昨收,市净率\n")
+            f.write("Code,Name,NowPrice,PctChange,Change,Volume,Amount,Amplitude,TurnoverRatio,PE,QRR,High,Low,Open,PreClose,PB\n")
             f.close()
     
     # 写入文件内容
