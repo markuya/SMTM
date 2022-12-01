@@ -113,7 +113,7 @@ def pullStockHisquotes( tCode ,tParams ):
         os._exit(0)
 
     # 输出文件名
-    tSaveFile = tParams['Output']+tCode+'.csv'
+    tSaveFile = tParams['Output']+'code-'+tCode+'.csv'
 
     # 判断文件是否存在
     if os.path.exists(tSaveFile):
@@ -130,6 +130,7 @@ def pullStockHisquotes( tCode ,tParams ):
         tUrl = tParams['Url']+"1"+tCode+"&start=19900101&end="+time.strftime('%Y%m%d',time.localtime())+tParams['Parameter']
         #tUrl = "http://quotes.money.163.com/service/chddata.html?code=1"+tCode+"&start=19900101&end=20220921&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
 
+    print('tUrl:',tUrl)
     res = requests.get(tUrl)
     
     # 数据存入临时文件
