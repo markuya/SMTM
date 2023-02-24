@@ -34,5 +34,5 @@ func GetExchangeHisQuotes(tName string, tHisData string, tDayData string, tStart
 	}
 
 	// 加载历史行情
-	return loadHisQuotes(tHisData, tDayData, tTime1, tTime2)
+	return loadHisQuotes(tHisData, tDayData, *tTime1, *tTime2), nil
 }
