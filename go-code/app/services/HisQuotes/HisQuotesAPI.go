@@ -1,7 +1,7 @@
 package HisQuotes
 
 import (
-	"strings"
+	"SMTM/app/services/BaseType"
 )
 
 // 获取指定交易所所有票的历史行情
@@ -10,29 +10,40 @@ import (
 // tDayData string - 天历史数据存储路径
 // tStartTime string - 开始时间(格式:xxxx-xx-xx 例如:1992-03-21)
 // tEndTime string - 结束时间(格式:xxxx-xx-xx 例如:1992-03-21)
-func GetExchangeHisQuotes(tName string, tHisData string, tDayData string, tStartTime string, tEndTime string) (map[string]*Stock, error) {
-	tUpperName := strings.ToUpper(tName)
-	switch tUpperName {
-	case "CHINA":
-		return loadHisQuotesChina(tHisData, tDayData)
-		break
-	case "USA":
-		return loadHisQuotesUSA(tHisData, tDayData)
-		break
-	default:
-		break
+func GetExchangeHisQuotes(tHisData string, tHisSTime string, tHisETime string, tDayData string, tDaySTime string, tDayETime string) (map[string]*BaseType.Stock, error) {
+
+	var tStockMap map[string]*BaseType.Stock
+
+	// 读取历史数据
+	{
+		// 时间格式验证
+		tTime1, err1 := _checkTimeFormat(tHisSTime)
+		if nil != err1 {
+			return nil, err1
+		}
+		tTime2, err2 := _checkTimeFormat(tHisETime)
+		if nil != err2 {
+			return nil, err2
+		}
+
+		tStockMap = loadHisData(tHisData, *tTime1, *tTime2)
 	}
 
-	// 时间格式验证
-	tTime1, err1 := _checkTimeFormat(tStartTime)
-	if nil != err1 {
-		return nil, err1
-	}
-	tTime2, err2 := _checkTimeFormat(tStartTime)
-	if nil != err2 {
-		return nil, err2
+	// 读取天历史数据
+	if tStockMap != nil {
+		// 时间格式验证
+		tTime1, err1 := _checkTimeFormat(tDaySTime)
+		if nil != err1 {
+			return nil, err1
+		}
+		tTime2, err2 := _checkTimeFormat(tDayETime)
+		if nil != err2 {
+			return nil, err2
+		}
+
+		loadDayData(tDayData, *tTime1, *tTime2, tStockMap)
 	}
 
 	// 加载历史行情
-	return loadHisQuotes(tHisData, tDayData, *tTime1, *tTime2), nil
+	return tStockMap, nil
 }

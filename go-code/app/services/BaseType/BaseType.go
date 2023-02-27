@@ -1,4 +1,4 @@
-package HisQuotes
+package BaseType
 
 import (
 	"time"
