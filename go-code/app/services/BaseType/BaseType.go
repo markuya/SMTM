@@ -6,14 +6,16 @@ import (
 
 // 行情信息
 type Quote struct {
-	Date     *time.Time // 日期
-	AdjClose float32    // 调整收盘价格
-	Close    float32    // 收盘价格
-	High     float32    // 最高
-	Low      float32    // 最低
-	Open     float32    // 开盘价格
-	Volume   int64      // 成交量
-	Amount   float64    // 成交额
+	Date      *time.Time // 日期
+	AdjClose  float32    // 调整收盘价格
+	Close     float32    // 收盘价格
+	High      float32    // 最高
+	Low       float32    // 最低
+	Open      float32    // 开盘价格
+	Volume    int64      // 成交量
+	Amount    float64    // 成交额
+	Change    float32    // 涨跌额
+	PctChange float32    // 涨跌幅
 }
 
 type Stock struct {

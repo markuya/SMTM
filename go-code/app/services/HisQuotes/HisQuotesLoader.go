@@ -66,17 +66,20 @@ func loadHisData(tHisData string, tStartTime time.Time, tEndTime time.Time) map[
 
 					// 日行情历史
 					tHisQuote := &BaseType.Quote{
-						AdjClose: _string2Float32(tData[`AdjClose`]), // 调整收盘价格
-						Close:    _string2Float32(tData[`Close`]),    // 收盘价格
-						High:     _string2Float32(tData[`High`]),     // 最高
-						Low:      _string2Float32(tData[`Low`]),      // 最低
-						Open:     _string2Float32(tData[`Open`]),     // 开盘价格
-						Volume:   _string2Int64(tData[`Volume`]),     // 成交量
-						Amount:   _string2Float64(tData[`Amount`]),   // 成交额
+						AdjClose:  _string2Float32(tData[`AdjClose`]),  // 调整收盘价格
+						Close:     _string2Float32(tData[`Close`]),     // 收盘价格
+						High:      _string2Float32(tData[`High`]),      // 最高
+						Low:       _string2Float32(tData[`Low`]),       // 最低
+						Open:      _string2Float32(tData[`Open`]),      // 开盘价格
+						Volume:    _string2Int64(tData[`Volume`]),      // 成交量
+						Amount:    _string2Float64(tData[`Amount`]),    // 成交额
+						PctChange: _string2Float32(tData[`PctChange`]), // 涨跌幅
+						Change:    _string2Float32(tData[`Change`]),    // 涨跌额
 					}
 					tHisQuote.Date = tTime
-
-					tStock.His[tTime.Format("20060102")] = tHisQuote
+					if tHisQuote.Open != 0 {
+						tStock.His[tTime.Format("20060102")] = tHisQuote
+					}
 				}
 
 				tWriterMutex.Lock()
@@ -104,7 +107,7 @@ func loadDayData(tDayData string, tStartTime time.Time, tEndTime time.Time, tSto
 
 		tFileTime = tFileTime.Add(tDaySecond)
 
-		tFile := tDayData + "\\quotes" + tFileDayStr + ".csv"
+		tFile := tDayData + "/quotes" + tFileDayStr + ".csv"
 
 		// 读取文件
 		tReader, err1 := primCsv.Open(tFile, primCsv.Options{HaveHeader: true})
@@ -132,20 +135,24 @@ func loadDayData(tDayData string, tStartTime time.Time, tEndTime time.Time, tSto
 				// 日行情历史
 				tHisQuote := &BaseType.Quote{
 					//AdjClose: _string2Float32(tData[`PreClose`]), // 调整收盘价格
-					Close:  _string2Float32(tData[`Close`]),  // 收盘价格
-					High:   _string2Float32(tData[`High`]),   // 最高
-					Low:    _string2Float32(tData[`Low`]),    // 最低
-					Open:   _string2Float32(tData[`Open`]),   // 开盘价格
-					Volume: _string2Int64(tData[`Volume`]),   // 成交量
-					Amount: _string2Float64(tData[`Amount`]), // 成交额
+					Close:     _string2Float32(tData[`Close`]),     // 收盘价格
+					High:      _string2Float32(tData[`High`]),      // 最高
+					Low:       _string2Float32(tData[`Low`]),       // 最低
+					Open:      _string2Float32(tData[`Open`]),      // 开盘价格
+					Volume:    _string2Int64(tData[`Volume`]),      // 成交量
+					Amount:    _string2Float64(tData[`Amount`]),    // 成交额
+					PctChange: _string2Float32(tData[`PctChange`]), // 涨跌幅
+					Change:    _string2Float32(tData[`Change`]),    // 涨跌额
 				}
-				tHisQuote.Date, _ = _checkTimeFormat(tFileDayStr)
+				if tHisQuote.Open != 0 {
+					tHisQuote.Date, _ = _checkTimeFormat(tFileDayStr)
 
-				tStock.His[tFileDayStr] = tHisQuote
+					tStock.His[tFileDayStr] = tHisQuote
 
-				tPreClose := _string2Float32(tData[`PreClose`]) // 昨日收盘价格
-				if tLasttHisQuote, ok := tStock.His[tFileLastDayStr]; ok {
-					tLasttHisQuote.Close = tPreClose
+					tPreClose := _string2Float32(tData[`PreClose`]) // 昨日收盘价格
+					if tLasttHisQuote, ok := tStock.His[tFileLastDayStr]; ok {
+						tLasttHisQuote.Close = tPreClose
+					}
 				}
 			}
 		}
